@@ -25,9 +25,12 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
 
   private LDClient ldClient;
   private LDUser user;
+  private Application application;
+  private static final int START_WAIT_SECONDS = 5; 
 
-  public RNLaunchDarklyModule(ReactApplicationContext reactContext) {
+  public RNLaunchDarklyModule(Application application, ReactApplicationContext reactContext) {
     super(reactContext);
+    this.application = application;
   }
 
   @Override
@@ -37,10 +40,6 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void configure(String apiKey, ReadableMap options) {
-    LDConfig ldConfig = new LDConfig.Builder()
-            .setMobileKey(apiKey)
-            .build();
-
     LDUser.Builder userBuilder = new LDUser.Builder(options.getString("key"));
 
     if (options.hasKey("email")) {
@@ -63,28 +62,18 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
       userBuilder = userBuilder.custom("organization", options.getString("organization"));
     }
 
-    if (user != null && ldClient != null) {
-      user = userBuilder.build();
-      ldClient.identify(user);
-
-      return;
-    }
-
     user = userBuilder.build();
 
-    Activity currentActivity = getCurrentActivity();
-    if (currentActivity == null) {
-      Log.d("RNLaunchDarklyModule", "Couldn't init RNLaunchDarklyModule - currentActivity was null");
+    if (ldClient != null) {
+      ldClient.identify(user);
       return;
     }
 
-    Application application = currentActivity.getApplication();
+    LDConfig ldConfig = new LDConfig.Builder()
+            .setMobileKey(apiKey)
+            .build();
 
-    if (application != null) {
-      ldClient = LDClient.init(application, ldConfig, user, 5);
-    } else {
-      Log.d("RNLaunchDarklyModule", "Couldn't init RNLaunchDarklyModule cause application was null");
-    }
+    ldClient = LDClient.init(this.application, ldConfig, user, START_WAIT_SECONDS);
   }
 
   @ReactMethod
