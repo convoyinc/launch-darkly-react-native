@@ -62,7 +62,7 @@ const user = {
 LaunchDarkly.configure('apiKey', user);
 
 // get boolean feature flag value
-LaunchDarkly.boolVariation('featureFlagName', (showFeature) => {
+LaunchDarkly.boolVariation('featureFlagName', false, (showFeature) => {
   console.log('Show feature:', showFeature);
 });
 
