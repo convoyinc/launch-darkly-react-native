@@ -46,7 +46,7 @@ RCT_EXPORT_METHOD(configure:(NSString*)apiKey options:(NSDictionary*)options) {
         user = [user withAnonymous:TRUE];
     }
 
-    if (custom && [custom isKindOfClass:[NSMutableDictionary class]]) {
+    if (custom && [custom isKindOfClass:[NSDictionary class]]) {
         for (id key in custom) {
             if (![key isKindOfClass:[NSString class]]) {
                 continue;

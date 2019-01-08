@@ -64,14 +64,18 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
       userBuilder = userBuilder.custom("organization", options.getString("organization"));
     }
 
-    if (options.hasKey("custom") && options.getMap("custom") instanceof  ReadableNativeMap) {
-      for (Map.Entry<String, Object> entry : options.getMap("custom").toHashMap().entrySet()) {
-        String key = entry.getKey();
-        Object value = entry.getValue();
-        if (value instanceof Number) {
-          userBuilder = userBuilder.custom(key, (Number)value);
-        } else if (value instanceof String) {
-          userBuilder = userBuilder.custom(key, (String)value);
+    if (options.hasKey("custom") && options.getMap("custom") instanceof  ReadableMap) {
+      ReadableMap readableMap = options.getMap("custom");
+      ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
+
+      while (iterator.hasNextKey()) {
+        String key = iterator.nextKey();
+        Dynamic value = readableMap.getDynamic(key);
+
+        if (ReadableType.Number == value.getType()) {
+          userBuilder = userBuilder.custom(key, value.asInt());
+        } else if (ReadableType.String == value.getType()) {
+          userBuilder = userBuilder.custom(key, value.asString());
         }
       }
     }
