@@ -11,7 +11,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.launchdarkly.android.FeatureFlagChangeListener;
@@ -21,7 +20,6 @@ import com.launchdarkly.android.LDUser;
 import com.launchdarkly.android.LaunchDarklyException;
 
 import java.util.Collections;
-import java.util.Map;
 
 public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
 
