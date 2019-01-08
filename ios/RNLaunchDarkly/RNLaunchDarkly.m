@@ -18,7 +18,8 @@ RCT_EXPORT_METHOD(configure:(NSString*)apiKey options:(NSDictionary*)options) {
     NSString* email         = options[@"email"];
     NSNumber* isAnonymous   = options[@"isAnonymous"];
     NSString* organization   = options[@"organization"];
-
+    id custom = options[@"custom"];
+    
     LDConfigBuilder *config = [[LDConfigBuilder alloc] init];
     [config withMobileKey:apiKey];
 
@@ -43,6 +44,21 @@ RCT_EXPORT_METHOD(configure:(NSString*)apiKey options:(NSDictionary*)options) {
 
     if([isAnonymous isEqualToNumber:[NSNumber numberWithBool:YES]]) {
         user = [user withAnonymous:TRUE];
+    }
+
+    if (custom && [custom isKindOfClass:[NSDictionary class]]) {
+        for (id key in custom) {
+            if (![key isKindOfClass:[NSString class]]) {
+                continue;
+            }
+            id value  = [custom objectForKey:key];
+            
+            if ([value isKindOfClass:[NSNumber class]]) {
+                user = [user withCustomNumber:key value:value];
+            } else if ([value isKindOfClass:[NSString class]]) {
+                user = [user withCustomString:key value:value];
+            }
+        }
     }
 
     if ( self.user ) {
