@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.launchdarkly.android.FeatureFlagChangeListener;
@@ -20,6 +21,7 @@ import com.launchdarkly.android.LDUser;
 import com.launchdarkly.android.LaunchDarklyException;
 
 import java.util.Collections;
+import java.util.Map;
 
 public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
 
@@ -60,6 +62,18 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
 
     if (options.hasKey("organization")) {
       userBuilder = userBuilder.custom("organization", options.getString("organization"));
+    }
+
+    if (options.hasKey("custom") && options.getMap("custom") instanceof  ReadableNativeMap) {
+      for (Map.Entry<String, Object> entry : options.getMap("custom").toHashMap().entrySet()) {
+        String key = entry.getKey();
+        Object value = entry.getValue();
+        if (value instanceof Number) {
+          userBuilder = userBuilder.custom(key, (Number)value);
+        } else if (value instanceof String) {
+          userBuilder = userBuilder.custom(key, (String)value);
+        }
+      }
     }
 
     user = userBuilder.build();
