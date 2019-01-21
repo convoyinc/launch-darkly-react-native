@@ -9,6 +9,8 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
@@ -26,7 +28,7 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
   private LDClient ldClient;
   private LDUser user;
   private Application application;
-  private static final int START_WAIT_SECONDS = 5; 
+  private static final int START_WAIT_SECONDS = 5;
 
   public RNLaunchDarklyModule(Application application, ReactApplicationContext reactContext) {
     super(reactContext);
@@ -68,12 +70,19 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
 
       while (iterator.hasNextKey()) {
         String key = iterator.nextKey();
-        Dynamic value = readableMap.getDynamic(key);
+        ReadableType type = readableMap.getType(key);
 
-        if (ReadableType.Number == value.getType()) {
-          userBuilder = userBuilder.custom(key, value.asInt());
-        } else if (ReadableType.String == value.getType()) {
-          userBuilder = userBuilder.custom(key, value.asString());
+        if (ReadableType.Number == type) {
+          double d = readableMap.getDouble(key);
+          // We could do away with this condition and just use getDouble. But to
+          // be as accurate as possible, let's pass in the correct type to userBuilder.
+          if(d % 1 == 0) {
+            userBuilder = userBuilder.custom(key, readableMap.getInt(key));
+          } else {
+            userBuilder = userBuilder.custom(key, d);
+          }
+        } else if (ReadableType.String == type) {
+          userBuilder = userBuilder.custom(key, readableMap.getString(key));
         }
       }
     }
