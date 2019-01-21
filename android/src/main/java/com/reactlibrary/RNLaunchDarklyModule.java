@@ -73,7 +73,14 @@ public class RNLaunchDarklyModule extends ReactContextBaseJavaModule {
         ReadableType type = readableMap.getType(key);
 
         if (ReadableType.Number == type) {
-          userBuilder = userBuilder.custom(key, readableMap.getInt(key));
+          double d = readableMap.getDouble(key);
+          // We could do away with this condition and just use getDouble. But to
+          // be as accurate as possible, let's pass in the correct type to userBuilder.
+          if(d % 1 == 0) {
+            userBuilder = userBuilder.custom(key, readableMap.getInt(key));
+          } else {
+            userBuilder = userBuilder.custom(key, d);
+          }
         } else if (ReadableType.String == type) {
           userBuilder = userBuilder.custom(key, readableMap.getString(key));
         }
